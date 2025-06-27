@@ -99,13 +99,13 @@ onMounted(() => {
       <div class="content-header">
         <slot name="header">
           <!-- Logo -->
-          <RouterLink :to="{ name: 'dashboard' }" class="fw-semibold text-dual">
+          <RouterLink :to="{ name: 'landing' }" class="fw-semibold text-dual">
             <span class="smini-visible">
               <i class="fa fa-circle-notch text-primary"></i>
             </span>
             <span class="smini-hide fs-5 tracking-wider">
-              Tiae
-<!--              <span class="fw-normal">Vue</span>-->
+              OneUI
+              <span class="fw-normal">Vue</span>
             </span>
           </RouterLink>
           <!-- END Logo -->
@@ -148,7 +148,7 @@ onMounted(() => {
                       for="radio-dark-mode-off"
                     >
                       <i class="fa fa-fw fa-sun opacity-50 me-2"></i>
-                      <span>Clair</span>
+                      <span>Light</span>
                     </label>
                   </div>
                   <div class="form-check form-block">
@@ -165,7 +165,7 @@ onMounted(() => {
                       for="radio-dark-mode-on"
                     >
                       <i class="fa fa-fw fa-moon opacity-50 me-2"></i>
-                      <span>Sombre</span>
+                      <span>Dark</span>
                     </label>
                   </div>
                   <div class="form-check form-block mb-0">
@@ -182,7 +182,7 @@ onMounted(() => {
                       for="radio-dark-mode-system"
                     >
                       <i class="fa fa-fw fa-desktop opacity-50 me-2"></i>
-                      <span>Système</span>
+                      <span>System</span>
                     </label>
                   </div>
                 </div>
@@ -267,14 +267,14 @@ onMounted(() => {
                     class="dropdown-item fw-medium"
                     @click="store.sidebarStyle({ mode: 'light' })"
                   >
-                    <span>Sidebar Clair</span>
+                    <span>Sidebar Light</span>
                   </button>
                   <button
                     type="button"
                     class="dropdown-item fw-medium"
                     @click="store.sidebarStyle({ mode: 'dark' })"
                   >
-                    <span>Sidebar Ombre</span>
+                    <span>Sidebar Dark</span>
                   </button>
                   <!-- END Sidebar Styles -->
 

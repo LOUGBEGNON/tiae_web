@@ -379,6 +379,12 @@ const routes = [
       },
 
       {
+        path: "profile",
+        name: "backend-pages-generic-profile",
+        component: BackendPagesGenericProfile,
+      },
+
+      {
         path: "pages",
         children: [
           {

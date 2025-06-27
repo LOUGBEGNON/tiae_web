@@ -30,8 +30,8 @@ store.mainContent({ mode: "boxed" });
           :to="{ name: 'landing' }"
           class="fw-bold fs-lg text-dual me-2"
         >
-          OneUI
-          <span class="fw-medium">Vue</span>
+          Tiae
+<!--          <span class="fw-medium">Vue</span>-->
         </RouterLink>
         <!-- END Logo -->
 
@@ -120,14 +120,14 @@ store.mainContent({ mode: "boxed" });
       <!-- END Options -->
 
       <!-- Purchase Link -->
-      <a
+      <RouterLink
         class="btn btn-success"
-        href="https://pixelcave.com/products/oneui-vue-edition?purchase=true&ref=demo"
+        :to="{ name: 'login' }"
         v-click-ripple
       >
         <i class="fa fa-fw fa-shopping-cart opacity-50"></i>
-        <span class="d-none d-sm-inline-block ms-2">Purchase</span>
-      </a>
+        <span class="d-none d-sm-inline-block ms-2">Se connecter</span>
+      </RouterLink>
       <!-- END Purchase Link -->
     </template>
     <!-- END Header Content Right -->

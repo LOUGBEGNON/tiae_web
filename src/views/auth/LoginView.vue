@@ -105,7 +105,7 @@ async function onSubmit() {
           <BaseBlock title="Sign In" class="mb-0">
             <template #options>
               <RouterLink
-                :to="{ name: 'auth-reminder' }"
+                :to="{ name: 'password-forgot-init' }"
                 class="btn-block-option fs-sm"
                 >Forgot Password?</RouterLink
               >

@@ -242,6 +242,9 @@ const AuthSignIn = () => import("@/views/auth/SignInView.vue");
 
 const LoginView = () => import("@/views/auth/LoginView.vue");
 
+const PasswordResetInit = () => import("@/views/auth/PasswordResetInit.vue");
+
+
 const RegisterView = () => import("@/views/auth/RegisterView.vue");
 
 const AuthSignIn2 = () => import("@/views/auth/SignIn2View.vue");
@@ -294,6 +297,11 @@ const routes = [
         path: "register",
         name: "register",
         component: RegisterView,
+      },
+      {
+        path: "password-forgot-init",
+        name: "password-forgot-init",
+        component: PasswordResetInit,
       },
 
 

@@ -175,8 +175,16 @@ onUnmounted(() => {
                       <span class="badge rounded-pill bg-primary ms-2">3</span>
                     </a>
                     <RouterLink
-                      :to="{ name: 'backend-pages-generic-profile' }"
+                      :to="{ name: 'view_profile' }"
                       class="dropdown-item d-flex align-items-center justify-content-between"
+                    >
+                      <span class="fs-sm fw-medium">Mon Profil</span>
+                      <span class="badge rounded-pill bg-primary ms-2">1</span>
+                    </RouterLink>
+
+                    <RouterLink
+                        :to="{ name: 'backend-pages-generic-profile' }"
+                        class="dropdown-item d-flex align-items-center justify-content-between"
                     >
                       <span class="fs-sm fw-medium">Profil</span>
                       <span class="badge rounded-pill bg-primary ms-2">1</span>

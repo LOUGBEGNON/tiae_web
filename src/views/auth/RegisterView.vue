@@ -1,28 +1,48 @@
 <script setup>
-import { reactive, computed } from "vue";
+import {reactive, computed, ref} from "vue";
 import { useRouter } from "vue-router";
 import { useTemplateStore } from "@/stores/template";
+import axios from "axios";
+import { useToast } from '@/composables/useToast';
 
-// Vuelidate, for more info and examples you can check out https://github.com/vuelidate/vuelidate
+
+// Vuelidate
 import useVuelidate from "@vuelidate/core";
 import { required, minLength, email, sameAs } from "@vuelidate/validators";
+
+// Validateur personnalisé pour le genre
+const genderValidator = (value) => {
+  return value === "M" || value === "F" || value === "O";
+};
 
 // Main store and Router
 const store = useTemplateStore();
 const router = useRouter();
+const { showToast } = useToast();
 
 // Input state variables
 const state = reactive({
+  firstName: null,
+  lastName: null,
   username: null,
   email: null,
   password: null,
   confirmPassword: null,
   terms: null,
+  gender: null,
 });
 
 // Validation rules
 const rules = computed(() => {
   return {
+    firstName: {
+      required,
+      minLength: minLength(2),
+    },
+    lastName: {
+      required,
+      minLength: minLength(2),
+    },
     username: {
       required,
       minLength: minLength(3),
@@ -42,23 +62,84 @@ const rules = computed(() => {
     terms: {
       sameAs: sameAs(true),
     },
+    gender: {
+      required,
+      genderValidator,
+    },
   };
 });
 
 // Use vuelidate
 const v$ = useVuelidate(rules, state);
 
+const message = ref("");
+const messageType = ref(""); // 'success' ou 'error'
+const submittedEmail = ref("");
+
+const clearMessages = () => {
+  message.value = "";
+  messageType.value = "";
+};
+
+
 // On form submission
 async function onSubmit() {
+  // Effacer les messages précédents
+  clearMessages();
+
   const result = await v$.value.$validate();
 
   if (!result) {
     // notify user form is invalid
+    showToast("Le formulaire est invalide", "error");
     return;
   }
+  const payload = {
+    first_name: state.firstName,
+    last_name: state.lastName,
+    username: state.username,
+    email: state.email,
+    password: state.password,
+    password1: state.confirmPassword,
+    sexe: state.gender,
+  };
 
-  // Go to dashboard
-  router.push({ name: "backend-pages-auth" });
+  try {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register/`, payload);
+    // router.push({ name: "backend-pages-auth" });
+
+    // Afficher le message de succès sur la page
+    message.value = response.data.message || "Un email de réinitialisation a été envoyé avec succès.";
+    messageType.value = "success";
+    submittedEmail.value = state.email;
+
+  } catch (error) {
+    console.error("Erreur d’inscription :", error);
+    let messageText = "Une erreur est survenue.";
+
+    // Gestion des erreurs spécifiques
+    if (error.response) {
+      // Erreur avec réponse du serveur
+      if (error.response.data.email) {
+        messageText = error.response.data.email[0];
+      } else if (error.response.data.detail) {
+        messageText = error.response.data.detail;
+      } else if (error.response.data.message) {
+        messageText = error.response.data.message;
+      } else if (error.response.status === 404) {
+        messageText = "Erreur d’inscription.";
+      }
+    } else if (error.request) {
+      // Erreur de réseau
+      messageText = "Erreur de connexion. Veuillez vérifier votre connexion internet.";
+    }
+
+    // Afficher le message d'erreur sur la page
+    message.value = messageText;
+    messageType.value = "error";
+
+  }
+
 }
 </script>
 
@@ -67,45 +148,31 @@ async function onSubmit() {
   <div class="bg-primary-dark">
     <div class="row g-0 bg-primary-dark-op">
       <!-- Meta Info Section -->
-      <div
-          class="hero-static col-lg-4 d-none d-lg-flex flex-column justify-content-center"
-      >
+      <div class="hero-static col-lg-4 d-none d-lg-flex flex-column justify-content-center">
         <div class="p-4 p-xl-5 flex-grow-1 d-flex align-items-center">
           <div class="w-100">
-            <RouterLink
-                :to="{ name: 'landing' }"
-                class="link-fx fw-semibold fs-2 text-white"
-            >
+            <RouterLink :to="{ name: 'landing' }" class="link-fx fw-semibold fs-2 text-white">
               Tiae<span class="fw-normal"></span>
             </RouterLink>
             <p class="text-white-75 me-xl-8 mt-2">
-              Creating a new accoughgkhfghnfgnt is completely free. Get started with 5
-              projects to manage and feel free to upgrade as your business grow.
+              Creating a new account is completely free. Get started with 5 projects to manage and feel free to upgrade as your business grow.
             </p>
           </div>
         </div>
-        <div
-            class="p-4 p-xl-5 d-xl-flex justify-content-between align-items-center fs-sm"
-        >
+        <div class="p-4 p-xl-5 d-xl-flex justify-content-between align-items-center fs-sm">
           <p class="fw-medium text-white-50 mb-0">
             <strong>{{ store.app.name + " " + store.app.version }}</strong>
             &copy; {{ store.app.copyright }}
           </p>
           <ul class="list list-inline mb-0 py-2">
             <li class="list-inline-item">
-              <a class="text-white-75 fw-medium" href="javascript:void(0)"
-              >Legal</a
-              >
+              <a class="text-white-75 fw-medium" href="javascript:void(0)">Legal</a>
             </li>
             <li class="list-inline-item">
-              <a class="text-white-75 fw-medium" href="javascript:void(0)"
-              >Contact</a
-              >
+              <a class="text-white-75 fw-medium" href="javascript:void(0)">Contact</a>
             </li>
             <li class="list-inline-item">
-              <a class="text-white-75 fw-medium" href="javascript:void(0)"
-              >Terms</a
-              >
+              <a class="text-white-75 fw-medium" href="javascript:void(0)">Terms</a>
             </li>
           </ul>
         </div>
@@ -113,14 +180,9 @@ async function onSubmit() {
       <!-- END Meta Info Section -->
 
       <!-- Main Section -->
-      <div
-          class="hero-static col-lg-8 d-flex flex-column align-items-center bg-body-extra-light"
-      >
+      <div class="hero-static col-lg-8 d-flex flex-column align-items-center bg-body-extra-light">
         <div class="p-3 w-100 d-lg-none text-center">
-          <RouterLink
-              :to="{ name: 'landing' }"
-              class="link-fx fw-semibold fs-3 text-dark"
-          >
+          <RouterLink :to="{ name: 'landing' }" class="link-fx fw-semibold fs-3 text-dark">
             Tiae<span class="fw-normal"></span>
           </RouterLink>
         </div>
@@ -132,16 +194,73 @@ async function onSubmit() {
                 <i class="fa fa-2x fa-circle-notch text-primary-light"></i>
               </p>
               <h1 class="fw-bold mb-2">Create Account</h1>
-              <p class="fw-medium text-muted">
-                Get your access today in one easy step
-              </p>
+              <p class="fw-medium text-muted">Get your access today in one easy step</p>
             </div>
             <!-- END Header -->
+
+            <!-- Messages d'alerte -->
+            <div v-if="message" class="row g-0 justify-content-center mb-4">
+              <div class="col-sm-8 col-xl-4">
+                <div
+                    class="alert text-center py-3"
+                    :class="{
+                    'alert-success': messageType === 'success',
+                    'alert-danger': messageType === 'error'
+                  }"
+                >
+                  <template v-if="messageType === 'success' && submittedEmail">
+                    <i class="fa fa-check-circle me-2"></i>
+                    {{ message }}
+                    <br><strong>{{ submittedEmail }}</strong>
+                  </template>
+                  <template v-else>
+                    <i class="fa fa-exclamation-circle me-2"></i>
+                    {{ message }}
+                  </template>
+                </div>
+              </div>
+            </div>
+            <!-- END Messages d'alerte -->
 
             <!-- Sign Up Form -->
             <div class="row g-0 justify-content-center">
               <div class="col-sm-8 col-xl-4">
                 <form @submit.prevent="onSubmit">
+                  <!-- First Name -->
+                  <div class="mb-4">
+                    <input
+                        type="text"
+                        class="form-control form-control-lg form-control-alt py-3"
+                        id="signup-first-name"
+                        name="signup-first-name"
+                        placeholder="First Name"
+                        :class="{ 'is-invalid': v$.firstName.$errors.length }"
+                        v-model="state.firstName"
+                        @blur="v$.firstName.$touch"
+                    />
+                    <div v-if="v$.firstName.$errors.length" class="invalid-feedback animated fadeIn">
+                      Please enter your first name (at least 2 characters)
+                    </div>
+                  </div>
+
+                  <!-- Last Name -->
+                  <div class="mb-4">
+                    <input
+                        type="text"
+                        class="form-control form-control-lg form-control-alt py-3"
+                        id="signup-last-name"
+                        name="signup-last-name"
+                        placeholder="Last Name"
+                        :class="{ 'is-invalid': v$.lastName.$errors.length }"
+                        v-model="state.lastName"
+                        @blur="v$.lastName.$touch"
+                    />
+                    <div v-if="v$.lastName.$errors.length" class="invalid-feedback animated fadeIn">
+                      Please enter your last name (at least 2 characters)
+                    </div>
+                  </div>
+
+                  <!-- Username -->
                   <div class="mb-4">
                     <input
                         type="text"
@@ -149,19 +268,16 @@ async function onSubmit() {
                         id="signup-username"
                         name="signup-username"
                         placeholder="Username"
-                        :class="{
-                        'is-invalid': v$.username.$errors.length,
-                      }"
+                        :class="{ 'is-invalid': v$.username.$errors.length }"
                         v-model="state.username"
                         @blur="v$.username.$touch"
                     />
-                    <div
-                        v-if="v$.username.$errors.length"
-                        class="invalid-feedback animated fadeIn"
-                    >
+                    <div v-if="v$.username.$errors.length" class="invalid-feedback animated fadeIn">
                       Please enter a username
                     </div>
                   </div>
+
+                  <!-- Email -->
                   <div class="mb-4">
                     <input
                         type="email"
@@ -169,19 +285,36 @@ async function onSubmit() {
                         id="signup-email"
                         name="signup-email"
                         placeholder="Email"
-                        :class="{
-                        'is-invalid': v$.email.$errors.length,
-                      }"
+                        :class="{ 'is-invalid': v$.email.$errors.length }"
                         v-model="state.email"
                         @blur="v$.email.$touch"
                     />
-                    <div
-                        v-if="v$.email.$errors.length"
-                        class="invalid-feedback animated fadeIn"
-                    >
+                    <div v-if="v$.email.$errors.length" class="invalid-feedback animated fadeIn">
                       Please enter a valid email address
                     </div>
                   </div>
+
+                  <!-- Gender -->
+                  <div class="mb-4">
+                    <select
+                        class="form-select form-select-lg form-select-alt py-3"
+                        id="signup-gender"
+                        name="signup-gender"
+                        :class="{ 'is-invalid': v$.gender.$errors.length }"
+                        v-model="state.gender"
+                        @blur="v$.gender.$touch"
+                    >
+                      <option value="" disabled>Select your gender</option>
+                      <option value="M">Male</option>
+                      <option value="F">Female</option>
+                      <option value="O">Other</option>
+                    </select>
+                    <div v-if="v$.gender.$errors.length" class="invalid-feedback animated fadeIn">
+                      Please select your gender
+                    </div>
+                  </div>
+
+                  <!-- Password -->
                   <div class="mb-4">
                     <input
                         type="password"
@@ -189,19 +322,16 @@ async function onSubmit() {
                         id="signup-password"
                         name="signup-password"
                         placeholder="Password"
-                        :class="{
-                        'is-invalid': v$.password.$errors.length,
-                      }"
+                        :class="{ 'is-invalid': v$.password.$errors.length }"
                         v-model="state.password"
                         @blur="v$.password.$touch"
                     />
-                    <div
-                        v-if="v$.password.$errors.length"
-                        class="invalid-feedback animated fadeIn"
-                    >
+                    <div v-if="v$.password.$errors.length" class="invalid-feedback animated fadeIn">
                       Please provide a password
                     </div>
                   </div>
+
+                  <!-- Confirm Password -->
                   <div class="mb-4">
                     <input
                         type="password"
@@ -209,42 +339,32 @@ async function onSubmit() {
                         id="signup-password-confirm"
                         name="signup-password-confirm"
                         placeholder="Confirm Password"
-                        :class="{
-                        'is-invalid': v$.confirmPassword.$errors.length,
-                      }"
+                        :class="{ 'is-invalid': v$.confirmPassword.$errors.length }"
                         v-model="state.confirmPassword"
                         @blur="v$.confirmPassword.$touch"
                     />
-                    <div
-                        v-if="v$.confirmPassword.$errors.length"
-                        class="invalid-feedback animated fadeIn"
-                    >
+                    <div v-if="v$.confirmPassword.$errors.length" class="invalid-feedback animated fadeIn">
                       Please confirm the password
                     </div>
                   </div>
+
+                  <!-- Terms -->
                   <div class="mb-4">
-                    <div
-                        class="d-md-flex align-items-md-center justify-content-md-between"
-                    >
+                    <div class="d-md-flex align-items-md-center justify-content-md-between">
                       <div class="form-check">
                         <input
                             class="form-check-input"
                             type="checkbox"
                             id="signup-terms"
                             name="signup-terms"
-                            :class="{
-                            'is-invalid': v$.terms.$errors.length,
-                          }"
+                            :class="{ 'is-invalid': v$.terms.$errors.length }"
                             v-model="state.terms"
                             @blur="v$.terms.$touch"
                         />
-                        <label class="form-check-label" for="signup-terms"
-                        >I agree to Terms &amp; Conditions</label
-                        >
-                        <div
-                            v-if="v$.terms.$errors.length"
-                            class="invalid-feedback animated fadeIn"
-                        >
+                        <label class="form-check-label" for="signup-terms">
+                          I agree to Terms &amp; Conditions
+                        </label>
+                        <div v-if="v$.terms.$errors.length" class="invalid-feedback animated fadeIn">
                           You must agree to the service terms!
                         </div>
                       </div>
@@ -254,11 +374,12 @@ async function onSubmit() {
                             href="javascript:void(0)"
                             data-bs-toggle="modal"
                             data-bs-target="#one-signup-terms"
-                        >View Terms</a
-                        >
+                        >View Terms</a>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Submit Button -->
                   <div class="text-center">
                     <button type="submit" class="btn btn-lg btn-alt-success">
                       <i class="fa fa-fw fa-plus me-1 opacity-50"></i> Sign Up
@@ -270,28 +391,20 @@ async function onSubmit() {
             <!-- END Sign Up Form -->
           </div>
         </div>
-        <div
-            class="px-4 py-3 w-100 d-lg-none d-flex flex-column flex-sm-row justify-content-between fs-sm text-center text-sm-start"
-        >
+        <div class="px-4 py-3 w-100 d-lg-none d-flex flex-column flex-sm-row justify-content-between fs-sm text-center text-sm-start">
           <p class="fw-medium text-black-50 py-2 mb-0">
             <strong>{{ store.app.name + " " + store.app.version }}</strong>
             &copy; {{ store.app.copyright }}
           </p>
           <ul class="list list-inline py-2 mb-0">
             <li class="list-inline-item">
-              <a class="text-muted fw-medium" href="javascript:void(0)"
-              >Legal</a
-              >
+              <a class="text-muted fw-medium" href="javascript:void(0)">Legal</a>
             </li>
             <li class="list-inline-item">
-              <a class="text-muted fw-medium" href="javascript:void(0)"
-              >Contact</a
-              >
+              <a class="text-muted fw-medium" href="javascript:void(0)">Contact</a>
             </li>
             <li class="list-inline-item">
-              <a class="text-muted fw-medium" href="javascript:void(0)"
-              >Terms</a
-              >
+              <a class="text-muted fw-medium" href="javascript:void(0)">Terms</a>
             </li>
           </ul>
         </div>
@@ -321,7 +434,6 @@ async function onSubmit() {
                 <i class="fa fa-fw fa-times"></i>
               </button>
             </template>
-
             <template #content>
               <div class="block-content">
                 <p>
@@ -332,60 +444,13 @@ async function onSubmit() {
                   proin odio sagittis purus mi, nec taciti vestibulum quis in
                   sit varius lorem sit metus mi.
                 </p>
-                <p>
-                  Dolor posuere proin blandit accumsan senectus netus nullam
-                  curae, ornare laoreet adipiscing luctus mauris adipiscing
-                  pretium eget fermentum, tristique lobortis est ut metus
-                  lobortis tortor tincidunt himenaeos habitant quis dictumst
-                  proin odio sagittis purus mi, nec taciti vestibulum quis in
-                  sit varius lorem sit metus mi.
-                </p>
-                <p>
-                  Dolor posuere proin blandit accumsan senectus netus nullam
-                  curae, ornare laoreet adipiscing luctus mauris adipiscing
-                  pretium eget fermentum, tristique lobortis est ut metus
-                  lobortis tortor tincidunt himenaeos habitant quis dictumst
-                  proin odio sagittis purus mi, nec taciti vestibulum quis in
-                  sit varius lorem sit metus mi.
-                </p>
-                <p>
-                  Dolor posuere proin blandit accumsan senectus netus nullam
-                  curae, ornare laoreet adipiscing luctus mauris adipiscing
-                  pretium eget fermentum, tristique lobortis est ut metus
-                  lobortis tortor tincidunt himenaeos habitant quis dictumst
-                  proin odio sagittis purus mi, nec taciti vestibulum quis in
-                  sit varius lorem sit metus mi.
-                </p>
-                <p>
-                  Dolor posuere proin blandit accumsan senectus netus nullam
-                  curae, ornare laoreet adipiscing luctus mauris adipiscing
-                  pretium eget fermentum, tristique lobortis est ut metus
-                  lobortis tortor tincidunt himenaeos habitant quis dictumst
-                  proin odio sagittis purus mi, nec taciti vestibulum quis in
-                  sit varius lorem sit metus mi.
-                </p>
-                <p>
-                  Dolor posuere proin blandit accumsan senectus netus nullam
-                  curae, ornare laoreet adipiscing luctus mauris adipiscing
-                  pretium eget fermentum, tristique lobortis est ut metus
-                  lobortis tortor tincidunt himenaeos habitant quis dictumst
-                  proin odio sagittis purus mi, nec taciti vestibulum quis in
-                  sit varius lorem sit metus mi.
-                </p>
+                <!-- autres paragraphes... -->
               </div>
               <div class="block-content block-content-full text-end bg-body">
-                <button
-                    type="button"
-                    class="btn btn-sm btn-alt-secondary me-1"
-                    data-bs-dismiss="modal"
-                >
+                <button type="button" class="btn btn-sm btn-alt-secondary me-1" data-bs-dismiss="modal">
                   Close
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    data-bs-dismiss="modal"
-                >
+                <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal">
                   I Agree
                 </button>
               </div>

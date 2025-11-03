@@ -16,6 +16,9 @@ const Landing = () => import("@/views/landing/LandingView.vue");
 
 const HomeView = () => import("@/views/home/HomeView.vue");
 
+const ViewProfile = () =>
+    import("@/views/home/ProfileView.vue");
+
 // Backend Boxed: Dashboard
 const BackendBoxedDashboard = () =>
   import("@/views/backend-boxed/DashboardView.vue");
@@ -385,6 +388,12 @@ const routes = [
         name: "dashboard",
         component: HomeDashboard,
       },
+        {
+            path: "view_profile",
+            name: "view_profile",
+            component: ViewProfile,
+        },
+
 
       {
         path: "profile",

@@ -102,12 +102,12 @@ async function onSubmit() {
       <div class="row justify-content-center push">
         <div class="col-md-8 col-lg-6 col-xl-4">
           <!-- Sign In Block -->
-          <BaseBlock title="Sign In" class="mb-0">
+          <BaseBlock title="Connexion" class="mb-0">
             <template #options>
               <RouterLink
                 :to="{ name: 'password-forgot-init' }"
                 class="btn-block-option fs-sm"
-                >Forgot Password?</RouterLink
+                >Mot de passe oublié?</RouterLink
               >
               <RouterLink
                 :to="{ name: 'register' }"
@@ -119,7 +119,7 @@ async function onSubmit() {
 
             <div class="p-sm-3 px-lg-4 px-xxl-5 py-lg-5">
               <h1 class="h2 mb-1">Tiae</h1>
-              <p class="fw-medium text-muted">Welcome, please login.</p>
+              <p class="fw-medium text-muted">Bienvenu(e), prière vous connecter avec vos identifiants.</p>
 
               <!-- Sign In Form -->
               <form @submit.prevent="onSubmit">
@@ -130,7 +130,7 @@ async function onSubmit() {
                       class="form-control form-control-alt form-control-lg"
                       id="login-username"
                       name="login-username"
-                      placeholder="Username or Email"
+                      placeholder="Email"
                       :class="{
                         'is-invalid': v$.email.$errors.length,
                       }"
@@ -141,7 +141,7 @@ async function onSubmit() {
                       v-if="v$.email.$errors.length"
                       class="invalid-feedback animated fadeIn"
                     >
-                      Please enter your username
+                      Entrez votre adresse mail
                     </div>
                   </div>
                   <div class="mb-4">
@@ -173,7 +173,7 @@ async function onSubmit() {
                           v-if="v$.password.$errors.length"
                           class="invalid-feedback animated fadeIn"
                       >
-                        Please enter your password
+                        Entrez votre mot de passe
                       </div>
                     </div>
 
@@ -188,7 +188,7 @@ async function onSubmit() {
                         name="login-remember"
                       />
                       <label class="form-check-label" for="login-remember"
-                        >Remember Me</label
+                        >Se rappeler de moi</label
                       >
                     </div>
                   </div>
@@ -197,7 +197,7 @@ async function onSubmit() {
                   <div class="col-md-6 col-xl-5">
                     <button type="submit" class="btn w-100 btn-alt-primary">
                       <i class="fa fa-fw fa-sign-in-alt me-1 opacity-50"></i>
-                      Sign In
+                      Soumettre
                     </button>
                   </div>
                 </div>

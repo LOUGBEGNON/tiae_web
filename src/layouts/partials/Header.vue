@@ -205,7 +205,7 @@ onUnmounted(() => {
                       <span class="fs-sm fw-medium">Désactiver</span>
                     </RouterLink>
                     <RouterLink
-                      :to="{ name: 'auth-signin' }"
+                      :to="{ name: 'login' }"
                       class="dropdown-item d-flex align-items-center justify-content-between"
                     >
                       <span class="fs-sm fw-medium">Déconnexion</span>

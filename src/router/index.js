@@ -19,6 +19,9 @@ const HomeView = () => import("@/views/home/HomeView.vue");
 const ViewProfile = () =>
     import("@/views/home/ProfileView.vue");
 
+const AssociationCreateView = () =>
+    import("@/views/association/Create.vue");
+
 // Backend Boxed: Dashboard
 const BackendBoxedDashboard = () =>
   import("@/views/backend-boxed/DashboardView.vue");
@@ -392,6 +395,23 @@ const routes = [
             path: "view_profile",
             name: "view_profile",
             component: ViewProfile,
+        },
+
+        {
+            path: "create",
+            name: "view_profile",
+            component: ViewProfile,
+        },
+
+        {
+            path: "association",
+            children: [
+                {
+                    path: "create",
+                    name: "create_association",
+                    component: AssociationCreateView,
+                },
+            ],
         },
 
 
